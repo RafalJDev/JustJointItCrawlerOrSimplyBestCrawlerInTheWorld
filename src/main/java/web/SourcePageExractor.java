@@ -10,8 +10,8 @@ import org.openqa.selenium.WebElement;
  */
 public class SourcePageExractor {
 
-  public static String getPageSource(WebDriver webDriver) {
-    WebElement element = webDriver.findElement(By.className("offers-list"));
+  public static String getPageSource(WebDriver webDriver, String className) {
+    WebElement element = webDriver.findElement(By.className(className));
     return (String) ((JavascriptExecutor) webDriver).executeScript("return arguments[0].innerHTML;", element);
   }
 }
