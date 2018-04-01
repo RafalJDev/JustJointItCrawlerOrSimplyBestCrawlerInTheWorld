@@ -13,7 +13,7 @@ public class Controller {
   private WebDriver webDriver;
 
   public Controller() {
-    System.setProperty(/*"webdriver.web.driver"*/"webdriver.chrome.driver", "C:\\Users\\jaszc\\Desktop\\chromedriver.exe");
+    System.setProperty("webdriver.chrome.driver", "C:\\Users\\jaszc\\Desktop\\chromedriver.exe");
     webDriver = new ChromeDriver();
   }
 
