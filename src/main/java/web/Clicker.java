@@ -17,13 +17,13 @@ public class Clicker {
              + "(\"" + className + "\")"
              + "[" + elementNumber + "]"
              + ".click();");
-
+    Waiter.waitTillPageLoads(webDriver);
     sleep();
   }
 
   private static void sleep() {
     try {
-      Thread.sleep(1500);
+      Thread.sleep(1000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
