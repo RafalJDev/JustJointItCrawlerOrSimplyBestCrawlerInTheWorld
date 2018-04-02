@@ -1,6 +1,7 @@
 package controller;
 
 import job.data.JobOffer;
+import job.data.Skill;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import job.SkillFinder;
@@ -11,6 +12,8 @@ import web.Waiter;
 
 import java.util.*;
 import java.util.function.Predicate;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by Jaszczynski.Rafal on 01.04.2018.
@@ -32,10 +35,12 @@ public class Controller {
     long offersCount = getNumberOfOffers();
 
     jobOfferList = new ArrayList<>();
-    for (int i = 0; i < offersCount - 1; i++) {
+    for (int i = 0; i < offersCount - 1 - 10; i++) { //TODO REMOVE TEMPORARY LIMIT
       getSkillsForCurrentOffer(i);
     }
     printEachOffer(jobOfferList);
+
+    prepareSkillStatistics(jobOfferList);
   }
 
   public void getSkillsForCurrentOffer(int i) {
@@ -55,9 +60,30 @@ public class Controller {
        });
   }
 
-  public void prepareSkillStatistics() {
-    Map<String, List<Integer>> skillsStatistics = new HashMap<>();
-//    jobOfferList.stream()
+  public void prepareSkillStatistics(List<JobOffer> jobOfferList) {
+    jobOfferList.stream()
+       .map(jobOffer -> jobOffer.getSkillList())
+       .flatMap(skills -> skills.stream())
+       .collect(toList())
+       .forEach(System.out::println);
+
+
+//    Map<String, List<Integer>> skillsStatistics = new HashMap<>();
+//
+//    for (JobOffer jobOffer : jobOfferList) {
+//      for (Skill skill : jobOffer.getSkillList()) {
+//
+//        String skillName = skill.getName();
+//        Integer levelValue = skill.getLevelValue();
+//        if (skillsStatistics.containsKey(skillName)) {
+//          skillsStatistics.get(skillName).add(levelValue);
+//        } else {
+//          List<Integer> levelValuesList = new ArrayList<>();
+//          levelValuesList.add(levelValue);
+//          skillsStatistics.put(skillName, levelValuesList);
+//        }
+//      }
+//    }
   }
 
   public String getSkillsHtml(int offerIndex) {

@@ -13,6 +13,14 @@ public class Skill {
     this.levelValue = levelValue;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public Integer getLevelValue() {
+    return levelValue;
+  }
+
   @Override
   public String toString() {
     return "Skill{" +
