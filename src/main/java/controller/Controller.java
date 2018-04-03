@@ -11,7 +11,13 @@ import web.SourcePageExractor;
 import web.Waiter;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -61,29 +67,60 @@ public class Controller {
   }
 
   public void prepareSkillStatistics(List<JobOffer> jobOfferList) {
+    //java stream to variable for learning purposes
+    Function<JobOffer, List<Skill>> jobOfferListFunction = jobOffer -> jobOffer.getSkillList();
+    Function<List<Skill>, Stream<? extends Skill>> listStreamFunction = skills -> skills.stream();
+    Collector<Skill, ?, List<Skill>> skillListCollector = toList();
+    Consumer<Skill> println = System.out::println;
+
+    Map<String, List<Integer>> skillStatisticsMap = new HashMap<>();
+    Consumer<Skill> skillConsumer = skill -> {
+      String skillName = skill.getName();
+      Integer levelValue = skill.getLevelValue();
+      if (!skillStatisticsMap.containsKey(skillName)) {
+        skillStatisticsMap.put(skillName, new ArrayList<>());
+      }
+      List<Integer> skillLevelList = skillStatisticsMap.get(skillName);
+      skillLevelList.add(levelValue);
+      skillStatisticsMap.put(skillName, skillLevelList);
+    };
+
     jobOfferList.stream()
-       .map(jobOffer -> jobOffer.getSkillList())
-       .flatMap(skills -> skills.stream())
-       .collect(toList())
-       .forEach(System.out::println);
+       .map(jobOfferListFunction)
+       .flatMap(listStreamFunction)
+       .collect(skillListCollector)
+       .forEach(skillConsumer);
+//       .forEach(println);
 
+    Comparator<Map.Entry<String, List<Integer>>> valueComparator =
+       (e1, e2) -> {
+         int size1 = e1.getValue().size();
+         int size2 = e2.getValue().size();
+         if (size1 > size2) {
+           return 1;
+         } else if (size1 == size2) {
+           return 0;
+         }
+         return -1;
+       };
 
-//    Map<String, List<Integer>> skillsStatistics = new HashMap<>();
-//
-//    for (JobOffer jobOffer : jobOfferList) {
-//      for (Skill skill : jobOffer.getSkillList()) {
-//
-//        String skillName = skill.getName();
-//        Integer levelValue = skill.getLevelValue();
-//        if (skillsStatistics.containsKey(skillName)) {
-//          skillsStatistics.get(skillName).add(levelValue);
-//        } else {
-//          List<Integer> levelValuesList = new ArrayList<>();
-//          levelValuesList.add(levelValue);
-//          skillsStatistics.put(skillName, levelValuesList);
-//        }
-//      }
-//    }
+    Map<String, List<Integer>> sortedSkillStatisticsMap =
+       skillStatisticsMap.entrySet()
+          .stream()
+          .sorted(valueComparator)
+          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+             (e1, e2) -> e1, LinkedHashMap::new));
+
+    sortedSkillStatisticsMap.forEach((skillName, levelValueList) -> {
+      System.out.println("SkillName: " + skillName);
+      System.out.println("Skill occurence: " + levelValueList.size());
+
+      ToIntFunction<Integer> intValue = Integer::intValue;
+
+      System.out.println("Skill averge level value: "
+         + (double) levelValueList.stream().mapToInt(intValue).sum() / (double) levelValueList.size());
+      System.out.println("---------------");
+    });
   }
 
   public String getSkillsHtml(int offerIndex) {
